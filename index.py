@@ -21,6 +21,15 @@ root.grid_columnconfigure(0, weight=1)
 root.iconbitmap('./logo.ico')
 
 
+# functions to provide clear respones by the user in input field
+def clearRollNumber():
+    text1.delete(first=0, last=22)
+
+
+def clearName():
+    text2.delete(first=0, last=50)
+
+
 # function to provide closing of FAMS
 def onClosingApplication():
     if messagebox.askokcancel("Quit", "Do you want to quit?"):
@@ -100,5 +109,31 @@ text2 = tk.Entry(
         width=20
     )
 text2.place(x=500, y=300)
+
+clearRollButton = tk.Button(
+        root, 
+        text="Clear",
+        command=clearRollNumber,
+        fg="black",
+        bg="deep pink",
+        width=10,
+        height=1,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+clearRollButton.place(x=900, y=210)
+
+clearNameButton = tk.Button(
+        root,
+        text="Clear",
+        command=clearName,
+        fg="black",
+        bg="deep pink",
+        width=10,
+        height=1,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+clearNameButton.place(x=900, y=300)
 
 root.mainloop()
