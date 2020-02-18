@@ -29,6 +29,91 @@ def clearRollNumber():
 def clearName():
     text2.delete(first=0, last=50)
 
+# function for seeing registered students
+def showStudents():
+    window = tk.Tk()
+    window.title("FAMS - Admin-Pannel")
+    window.iconbitmap('./logo.ico')
+    window.geometry("720x480")
+
+    def adminLoginOption():
+        pass
+    
+    def clearAdminName():
+        text1.delete(first=0, last=50)
+    
+    def clearAdminPassword():
+        text2.delete(first=0, last=50)
+
+    label1 = tk.Label(
+        window,
+        text="Username",
+        bg="deep pink", 
+        fg="black", 
+        width=15,
+        height=2,
+        font=('times', 15, 'bold')
+    )
+    label1.place(x=30, y=40)
+
+    text1 = tk.Entry(
+        window,
+        bg="white",
+        fg="red",
+        font=('times', 25, 'bold'),
+        width=15
+    )
+    text1.place(x=250, y=40)
+
+    clear1 = tk.Button(
+        window,
+        command=clearAdminName,
+        bg="deep pink",
+        fg="black",
+        text="clear",
+        width=10,
+        height=1,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+    clear1.place(x=550, y=40)
+
+    label2 = tk.Label(
+        window,
+        text="Password",
+        bg="deep pink", 
+        fg="black", 
+        width=15,
+        height=2,
+        font=('times', 15, 'bold')
+    )
+    label2.place(x=30, y=140)
+
+    text2 = tk.Entry(
+        window,
+        bg="white",
+        fg="red",
+        font=('times', 25, 'bold'),
+        width=15,
+        show="*"
+    )
+    text2.place(x=250, y=140)
+
+    clear2 = tk.Button(
+        window,
+        command=clearAdminPassword,
+        bg="deep pink",
+        fg="black",
+        text="clear",
+        width=10,
+        height=1,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+    clear2.place(x=550, y=140)
+
+    
+
 
 # function to provide closing of FAMS
 def onClosingApplication():
@@ -80,7 +165,7 @@ label1.place(x=150, y=200)
 
 text1 = tk.Entry(
         root,
-        bg="yellow",
+        bg="white",
         fg="red",
         font=('times', 25, 'bold'),
         validate="key",
@@ -103,7 +188,7 @@ label2.place(x=150, y=290)
 
 text2 = tk.Entry(
         root,
-        bg="yellow",
+        bg="white",
         fg="red",
         font=('times', 25, 'bold'),
         width=20
@@ -135,5 +220,18 @@ clearNameButton = tk.Button(
         font=('times', 15, 'bold')
     )
 clearNameButton.place(x=900, y=300)
+
+registeredStudents = tk.Button(
+        root,
+        text="Registered Students",
+        command=showStudents,
+        fg="black",
+        bg="deep pink",
+        width=20,
+        height=1,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+registeredStudents.place(x=990, y=550)
 
 root.mainloop()
