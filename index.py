@@ -19,6 +19,83 @@ root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.iconbitmap('./logo.ico')
 
+# function to show error if label is not present 
+def deleteErrorScreen():
+    screen.destroy()
+
+def showErrorScreen():
+    global screen 
+    screen = tk.Tk()
+    screen.geometry('300x100')
+    screen.iconbitmap('./logo.ico')
+    screen.title('Warning!!')
+    screen.configure(background='snow')
+    tk.Label(
+        screen,
+        text='Enrollment & Name required!!!',
+        fg='red',
+        bg='white',
+        font=('times', 16, ' bold ')
+        ).pack()
+
+    tk.Button(
+        screen,
+        text='OK',
+        command=deleteErrorScreen,
+        fg="black",
+        bg="lawn green",
+        width=9,
+        height=1, 
+        activebackground="Red",
+        font=('times', 15, ' bold ')
+        ).place(x=90,y= 50)
+
+# function to provide student to take image
+def takeStudentImage():
+    rollNumber = text1.get()
+    studentName = text2.get()
+    if rollNumber == '' or studentName == '':
+        showErrorScreen()
+    else:
+        cam = cv2.VideoCapture(0)
+        cascade = cv2.CascadeClassifier('./haarcascade_frontalface_alt2.xml')
+        sampleImages = 0
+        while True:
+            ret, frame = cam.read()
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = cascade.detectMultiScale(
+                gray,
+                scaleFactor=1.3,
+                minNeighbors=5
+            )
+            for x, y, w, h in faces:
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                sampleImages = sampleImages + 1
+                cv2.imwrite("./TrainingImage/" + studentName + "." + rollNumber + '.' + str(sampleImages) + ".jpg",
+                                gray[y:y + h, x:x + w])
+                
+
+                cv2.imshow("Frame", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+            elif sampleImages > 100:
+                break
+
+        cam.release()
+        cv2.destroyAllWindows()
+
+        ts = time.time()
+        Date = datetime.datetime.fromtimestamp(ts).strftime("%d-%m-%Y")
+        Time = datetime.datetime.fromtimestamp(ts).strftime("%H:%M:%S")
+        row = [rollNumber, studentName, Date, Time]
+        with open('./StudentDetails/StudentDetails.csv', 'a+') as csvFile:
+            writer = csv.writer(csvFile, delimiter=',')
+            writer.writerow(row)
+            csvFile.close()
+        res = "Images Saved for Enrollment : " + rollNumber + " Name : " + studentName
+        notifications.configure(text=res, bg="SpringGreen3", width=50, font=('times', 18, 'bold'))
+        notifications.place(x=250, y=400)
 
 # functions to provide clear respones by the user in input field
 def clearRollNumber():
@@ -176,16 +253,6 @@ def entryValidation(element, acttype):
 
 
 # Creating all the required enteries for our gui app
-topic = tk.Label(
-        root, 
-        text="Face-Recognition-Based-Attendance-Management-System",
-        bg="cyan",
-        fg="black",
-        width=50,
-        height=3,
-        font=('times', 30, 'italic bold')
-    )
-topic.place(x=50, y=20)
 
 notifications = tk.Label(
         root,
@@ -196,6 +263,17 @@ notifications = tk.Label(
         height=3,
         font=('times', 17, 'bold')
     )
+
+topic = tk.Label(
+        root, 
+        text="Face-Recognition-Based-Attendance-Management-System",
+        bg="cyan",
+        fg="black",
+        width=50,
+        height=3,
+        font=('times', 30, 'italic bold')
+    )
+topic.place(x=50, y=20)
 
 label1 = tk.Label(
         root,
@@ -265,6 +343,20 @@ clearNameButton = tk.Button(
         font=('times', 15, 'bold')
     )
 clearNameButton.place(x=900, y=300)
+
+takeImageButton = tk.Button(
+        root,
+        text="Take Image",
+        bg="deep pink",
+        fg="black",
+        command=takeStudentImage,
+        width=10,
+        height=1,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+takeImageButton.place(x=40, y=500)
+
 
 registeredStudents = tk.Button(
         root,
