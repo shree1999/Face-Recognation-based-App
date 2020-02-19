@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import *
 from tkinter import messagebox
 import pandas as pd
 import cv2
@@ -37,7 +36,43 @@ def showStudents():
     window.geometry("720x480")
 
     def adminLoginOption():
-        pass
+        username = text1.get()
+        password = text2.get()
+
+        if username == "admin":
+            if password == "admin1234":
+                window.destroy()
+
+                win = tk.Tk()
+                win.title("Students Register")
+                win.configure(background="snow")
+                location = './StudentDetails/StudentDetails.csv'
+                with open(location, newline="") as file:
+                    reader = csv.reader(file)
+                    r = 0
+                    for col in reader:
+                        c = 0
+                        for row in col:
+                            label = tk.Label(
+                                win, 
+                                width=8, 
+                                height=1, 
+                                fg="black", 
+                                font=('times', 15, ' bold '),
+                                bg="lawn green", 
+                                text=row, 
+                                relief=tk.RIDGE
+                            )
+                            label.grid(row=r, column=c)
+                            c = c + 1
+                        r = r + 1
+                win.mainloop()
+            else:
+                valid = "Wrong Password"
+                messagebox.showwarning(title=None, message=valid)
+        else:
+            valid = "Wrong Username"
+            messagebox.showwarning(title=None, message=valid)
     
     def clearAdminName():
         text1.delete(first=0, last=50)
@@ -112,8 +147,18 @@ def showStudents():
     )
     clear2.place(x=550, y=140)
 
-    
-
+    loginButton = tk.Button(
+        window,
+        command=adminLoginOption,
+        bg="deep pink",
+        fg="black",
+        width=10,
+        height=1,
+        text="Login",
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+    loginButton.place(x=300, y=310)
 
 # function to provide closing of FAMS
 def onClosingApplication():
