@@ -19,6 +19,56 @@ root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.iconbitmap('./logo.ico')
 
+# function to get images from the folder Training Image folder...
+def getImagesAndLabels(path):
+    imagePath = []
+    faces = []
+    Ids = []
+
+    for picture in os.listdir(path):
+        imagePath.append(os.path.join(path, picture))
+
+    # output-> ['TrainingImage\\Rakshith.1.1', ...]
+
+    for path in imagePath:
+        # converting the image into gray scale using ITU-R 601-2 luma transform:
+        # L = R * 299/1000 + G * 587/1000 + B * 114/1000
+        pilImage = Image.open(path).convert('L')
+        imageNp = np.array(pilImage)
+        Id = int(os.path.split(path)[-1].split('.')[1])
+        faces.append(imageNp)
+        Ids.append(Id)
+    
+    return faces, Ids
+
+# function to train images collected from the students.
+def trainImage():
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+    detector = cv2.CascadeClassifier('./haarcascade_frontalface_alt2.xml')
+    try:
+        Faces, Id = getImagesAndLabels('TrainingImage')
+    except Exception as e:
+        res = 'Please make "TrainingImage" folder & put Images'
+        notifications.configure(
+            text=res,
+            bg="SpringGreen3",
+            width=50, 
+            font=('times', 18, 'bold')
+        )
+        notifications.place(x=250, y=400)
+    
+    recognizer.train(Faces, np.array(Id))
+    recognizer.save("./TrainingImageLabel/Trainer.yml")
+    res = "Image Trained"
+    notifications.configure(
+            text=res,
+            bg="SpringGreen3",
+            width=50, 
+            font=('times', 18, 'bold')
+        )
+    notifications.place(x=250, y=400)
+
+
 # function to show error if label is not present 
 def deleteErrorScreen():
     screen.destroy()
@@ -347,7 +397,7 @@ clearNameButton.place(x=900, y=300)
 takeImageButton = tk.Button(
         root,
         text="Take Image",
-        bg="deep pink",
+        bg="yellow",
         fg="black",
         command=takeStudentImage,
         width=10,
@@ -355,8 +405,20 @@ takeImageButton = tk.Button(
         activebackground="Red",
         font=('times', 15, 'bold')
     )
-takeImageButton.place(x=40, y=500)
+takeImageButton.place(x=40, y=550)
 
+trainImageButton = tk.Button(
+        root,
+        text="Train Image",
+        bg="yellow",
+        fg="black",
+        command=trainImage,
+        width=10,
+        height=1,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+trainImageButton.place(x=200, y=550)
 
 registeredStudents = tk.Button(
         root,
