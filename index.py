@@ -19,6 +19,66 @@ root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.iconbitmap('./logo.ico')
 
+# function to start taking attendance after training image...
+def chooseSubject():
+    windo = tk.Tk()
+    windo.iconbitmap('./logo.ico')
+    windo.title("Enter subject name...")
+    windo.geometry('580x320')
+    windo.configure(background='snow')
+    Notifica = tk.Label(windo, 
+                        text="Attendance filled Successfully", 
+                        bg="Green", 
+                        fg="white", 
+                        width=33,
+                        height=2, 
+                        font=('times', 15, 'bold'))
+    def Fillattendances():
+        pass
+            
+    def Attf():
+        pass
+
+    attf = tk.Button(windo,  
+                    text="Check Sheets",
+                    command=Attf,
+                    fg="black"  ,
+                    bg="lawn green",
+                    width=12 ,
+                    height=1 ,
+                    activebackground = "Red" ,
+                    font=('times', 14, ' bold '))               
+    attf.place(x=430, y=255)
+
+    sub = tk.Label(windo, 
+                  text="Enter Subject", 
+                  width=15, 
+                  height=2, 
+                  fg="white", 
+                  bg="blue2", 
+                  font=('times', 15, ' bold '))
+    sub.place(x=30, y=100)
+
+    tx = tk.Entry(windo, 
+                 width=20, 
+                 bg="yellow", 
+                 fg="red", 
+                 font=('times', 23, ' bold '))
+    tx.place(x=250, y=105)
+
+    fill_a = tk.Button(windo, 
+                       text="Fill Attendance", 
+                       fg="white",
+                       command=Fillattendances, 
+                       bg="deep pink", 
+                       width=20, 
+                       height=2,
+                       activebackground="Red", 
+                       font=('times', 15, ' bold '))
+    fill_a.place(x=250, y=160)
+    windo.mainloop()
+
+
 # function to get images from the folder Training Image folder...
 def getImagesAndLabels(path):
     imagePath = []
@@ -56,17 +116,26 @@ def trainImage():
             font=('times', 18, 'bold')
         )
         notifications.place(x=250, y=400)
-    
-    recognizer.train(Faces, np.array(Id))
-    recognizer.save("./TrainingImageLabel/Trainer.yml")
-    res = "Image Trained"
-    notifications.configure(
-            text=res,
-            bg="SpringGreen3",
-            width=50, 
-            font=('times', 18, 'bold')
-        )
-    notifications.place(x=250, y=400)
+    try:
+        recognizer.train(Faces, np.array(Id))
+        recognizer.save("./TrainingImageLabel/Trainer.yml")
+        res = "Image Trained"
+        notifications.configure(
+                text=res,
+                bg="SpringGreen3",
+                width=50, 
+                font=('times', 18, 'bold')
+            )
+        notifications.place(x=250, y=400)
+    except Exception as e:
+        res = "Please Take images for training"
+        notifications.configure(
+                text=res,
+                bg="red",
+                width=50, 
+                font=('times', 18, 'bold')
+            )
+        notifications.place(x=250, y=400)
 
 
 # function to show error if label is not present 
@@ -105,7 +174,7 @@ def takeStudentImage():
     rollNumber = text1.get()
     studentName = text2.get()
     if rollNumber == '' or studentName == '':
-        showErrorScreen()
+        showErrorScreen() # function declared above.
     else:
         cam = cv2.VideoCapture(0)
         cascade = cv2.CascadeClassifier('./haarcascade_frontalface_alt2.xml')
@@ -400,8 +469,8 @@ takeImageButton = tk.Button(
         bg="yellow",
         fg="black",
         command=takeStudentImage,
-        width=10,
-        height=1,
+        width=20,
+        height=3,
         activebackground="Red",
         font=('times', 15, 'bold')
     )
@@ -410,15 +479,28 @@ takeImageButton.place(x=40, y=550)
 trainImageButton = tk.Button(
         root,
         text="Train Image",
-        bg="yellow",
+        bg="blue",
         fg="black",
         command=trainImage,
-        width=10,
-        height=1,
+        width=20,
+        height=3,
         activebackground="Red",
         font=('times', 15, 'bold')
     )
-trainImageButton.place(x=200, y=550)
+trainImageButton.place(x=320, y=550)
+
+scan = tk.Button(
+        root,
+        text="Automatic Attendance",
+        bg="yellow",
+        fg="black",
+        command=chooseSubject,
+        width=20,
+        height=3,
+        activebackground="Red",
+        font=('times', 15, 'bold')
+    )
+scan.place(x=600, y=550)
 
 registeredStudents = tk.Button(
         root,
