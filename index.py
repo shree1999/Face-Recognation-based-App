@@ -19,6 +19,38 @@ root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.iconbitmap('./logo.ico')
 
+# error screen for not writing the subject name
+def deleteError():
+    screen.destroy()
+
+def showError():
+    global screen 
+    screen = tk.Tk()
+    screen.geometry('300x100')
+    screen.iconbitmap('./logo.ico')
+    screen.title('Warning!!')
+    screen.configure(background='snow')
+    tk.Label(
+        screen,
+        text='Subject Name Required!!!',
+        fg='red',
+        bg='white',
+        font=('times', 16, ' bold ')
+        ).pack()
+
+    tk.Button(
+        screen,
+        text='OK',
+        command=deleteErrorScreen,
+        fg="black",
+        bg="lawn green",
+        width=9,
+        height=1, 
+        activebackground="Red",
+        font=('times', 15, ' bold ')
+        ).place(x=90,y=50)
+
+
 # function to start taking attendance after training image...
 def chooseSubject():
     windo = tk.Tk()
@@ -34,8 +66,76 @@ def chooseSubject():
                         height=2, 
                         font=('times', 15, 'bold'))
     def Fillattendances():
-        pass
-            
+        subject = tx.get()
+        now = time.time()
+        future = now + 20
+        if time.time() < future:
+            if subject == '':
+                showError()
+            else:
+                cascade = cv2.CascadeClassifier('./haarcascade_frontalface_alt2.xml')
+                df = pd.read_csv('./StudentDetails/StudentDetails.csv')
+                cam = cv2.VideoCapture(0)
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cols = list(df.columns)
+                recognizer = cv2.face.LBPHFaceRecognizer_create()
+                try:
+                    recognizer.read('./TrainingImageLabel/Trainer.yml')
+                except Exception as e:
+                    notFound = 'Please Train Images'
+                    Notifica.configure(text=notFound, 
+                                      bg="red", 
+                                      fg="black", 
+                                      width=33, 
+                                      font=('times', 15, 'bold'))
+                    Notifica.place(x=20, y=250)
+                    return
+                
+                attendance = pd.DataFrame(columns=cols)
+                while True:
+                    ret, img = cam.read()
+                    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    faces = cascade.detectMultiScale(gray, 1.3, 5)
+                    for x, y, w, h in faces:
+                        global ID 
+                        ID, conf = recognizer.predict(gray[y:y+h, x:x+w])
+                        if conf < 70:
+                            global Subject
+                            global aa
+                            global date
+                            global timeStamp
+                            Subject = tx.get()
+                            ts = time.time()
+                            date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+                            timeStamp = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+                            aa = df.loc[df['Enrollment'] == ID]['Name'].values
+                            global tt
+                            tt = str(ID) + "-" + aa
+                            En = '15624031' + str(ID)
+                            attendance.loc[len(attendance)] = [ID, aa, date, timeStamp]
+                            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 260, 0), 7)
+                            cv2.putText(img, str(tt), (x + h, y), font, 1, (255, 255, 0,), 4)
+
+                        else:
+                            ID = 'Unknown'
+                            tt = str(ID)
+                            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 25, 255), 7)
+                            cv2.putText(img, str(tt), (x + h, y), font, 1, (0, 25, 255), 4)
+                    if time.time() > future:
+                        break
+                    attendance = attendance.drop_duplicates(['Enrollment'], keep='first')
+                    cv2.imshow('Filling attedance..', img)
+                    key = cv2.waitKey(30) & 0xff
+                    if key == 27:
+                        break
+                ts = time.time()
+                date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+                timeStamp = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
+                Hour, Minute, Second = timeStamp.split(":")
+                fileName = "Attendance/" + Subject + "_" + date + "_" + Hour + "-" + Minute + "-" + Second + ".csv"
+                attendance = attendance.drop_duplicates(['Enrollment'], keep='first')
+                attendance.to_csv(fileName, index=False)
+
     def Attf():
         pass
 
@@ -83,7 +183,7 @@ def chooseSubject():
 def getImagesAndLabels(path):
     imagePath = []
     faces = []
-    Ids = []
+    IDs = []
 
     for picture in os.listdir(path):
         imagePath.append(os.path.join(path, picture))
@@ -95,18 +195,18 @@ def getImagesAndLabels(path):
         # L = R * 299/1000 + G * 587/1000 + B * 114/1000
         pilImage = Image.open(path).convert('L')
         imageNp = np.array(pilImage)
-        Id = int(os.path.split(path)[-1].split('.')[1])
+        ID = int(os.path.split(path)[-1].split('.')[1])
         faces.append(imageNp)
-        Ids.append(Id)
+        IDs.append(ID)
     
-    return faces, Ids
+    return faces, IDs
 
 # function to train images collected from the students.
 def trainImage():
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     detector = cv2.CascadeClassifier('./haarcascade_frontalface_alt2.xml')
     try:
-        Faces, Id = getImagesAndLabels('TrainingImage')
+        Faces, ID = getImagesAndLabels('TrainingImage')
     except Exception as e:
         res = 'Please make "TrainingImage" folder & put Images'
         notifications.configure(
@@ -117,7 +217,7 @@ def trainImage():
         )
         notifications.place(x=250, y=400)
     try:
-        recognizer.train(Faces, np.array(Id))
+        recognizer.train(Faces, np.array(ID))
         recognizer.save("./TrainingImageLabel/Trainer.yml")
         res = "Image Trained"
         notifications.configure(
@@ -257,7 +357,7 @@ def showStudents():
                                 font=('times', 15, ' bold '),
                                 bg="lawn green", 
                                 text=row, 
-                                relief=tk.RIDGE
+                                relief=tk.RidGE
                             )
                             label.grid(row=r, column=c)
                             c = c + 1
