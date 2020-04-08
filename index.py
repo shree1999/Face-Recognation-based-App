@@ -132,23 +132,39 @@ def chooseSubject():
                 date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
                 timeStamp = datetime.datetime.fromtimestamp(ts).strftime('%H:%M:%S')
                 Hour, Minute, Second = timeStamp.split(":")
-                fileName = "Attendance/" + Subject + "_" + date + "_" + Hour + "-" + Minute + "-" + Second + ".csv"
+                fileName = "./Attendance/" + Subject + "_" + date + "_" + Hour + "-" + Minute + "-" + Second + ".csv"
                 attendance = attendance.drop_duplicates(['Enrollment'], keep='first')
                 attendance.to_csv(fileName, index=False)
+                
+                M = 'Attendance filled Successfully'
+                Notifica.configure(text=M, bg="Green", fg="white", width=33, font=('times', 15, 'bold'))
+                Notifica.place(x=20, y=250)
+                
+                cam.release()
+                cv2.destroyAllWindows()
+                
+                import csv
+                import tkinter
+                root = tkinter.Tk()
+                root.title("Attendance of " + Subject)
+                root.configure(background='snow')
+                cs = fileName
+                with open(cs, newline="") as file:
+                    reader = csv.reader(file)
+                    r = 0
 
-    def Attf():
-        pass
-
-    attf = tk.Button(windo,  
-                    text="Check Sheets",
-                    command=Attf,
-                    fg="black"  ,
-                    bg="lawn green",
-                    width=12 ,
-                    height=1 ,
-                    activebackground = "Red" ,
-                    font=('times', 14, ' bold '))               
-    attf.place(x=430, y=255)
+                    for col in reader:
+                        c = 0
+                        for row in col:
+                            # i've added some styling
+                            label = tkinter.Label(root, width=8, height=1, fg="black", font=('times', 15, ' bold '),
+                                                    bg="lawn green", text=row, relief=tkinter.RIDGE)
+                            label.grid(row=r, column=c)
+                            c += 1
+                        r += 1
+                root.mainloop()
+    
+    
 
     sub = tk.Label(windo, 
                   text="Enter Subject", 
@@ -357,7 +373,7 @@ def showStudents():
                                 font=('times', 15, ' bold '),
                                 bg="lawn green", 
                                 text=row, 
-                                relief=tk.RidGE
+                                relief=tk.RIDGE
                             )
                             label.grid(row=r, column=c)
                             c = c + 1
